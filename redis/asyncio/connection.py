@@ -1647,6 +1647,11 @@ class BlockingConnectionPool(ConnectionPool):
         async with self._lock:
             resp = await asyncio.gather(
                 *(connection.disconnect() for connection in self._connections),
+                *(
+                    connection.disconnect()
+                    for connection in self._in_use_connections
+                    if inuse_connections
+                ),
                 return_exceptions=True,
             )
             exc = next((r for r in resp if isinstance(r, BaseException)), None)
